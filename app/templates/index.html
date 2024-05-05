@@ -8,5 +8,66 @@
     <!-- Minified version -->
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css" />
   </head>
-  <body></body>
+  <body>
+    <div class="">
+      <video id="video" autoplay muted></video>
+      <div class="stack-top" id="stack-top"></div>
+      <div class="face_nome" id="face_nome">&nbsp;</div>
+
+      {% csrf_token %}
+    </div>
+    <script>
+      var interval
+      const video = document.getElementById('video')
+      
+      function startVideo() {
+        navigator.mediaDevices
+          .getUserMedia({
+            video: true
+          })
+          .then((stream) => {
+            video.srcObject = stream
+            video.onloadedmetadata = function (e) {
+              $('.stack-top').show()
+            }
+          })
+      }
+      startVideo()
+      
+      function capturar_video() {
+        var canvas = document.createElement('canvas')
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
+        var img_b64 = canvas.toDataURL('image/jpeg')
+        $.ajax({
+          type: 'POST',
+          url: "{% url 'check_face'%}",
+          data: {
+            imageBase64: img_b64,
+            csrfmiddlewaretoken: csrf
+          }
+        })
+          .done(function (data) {
+            console.log(data)
+            name = data.name
+            score = data.score
+            clearInterval(interval)
+            $('.stack-top').fadeOut(200).fadeIn(200).fadeOut(200).fadeIn(200)
+            timeout1 = setTimeout(function () {
+              window.location.replace("{%url 'index'%}")
+            }, 1500)
+            $('#face_nome').html('Welcome ' + name + '.')
+            $('#face_nome').show()
+          })
+          .fail(function (jqXHR, textStatus, jsondata) {
+            $('#face_nome').html('Invalid user!')
+            $('#face_nome').show()
+          })
+      }
+      interval = setInterval(function () {
+        capturar_video()
+      }, 2000)
+    </script>
+  </body>
 </html>

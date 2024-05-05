@@ -18,8 +18,12 @@ from django.contrib.auth import login
 from django.http import HttpResponseServerError, JsonResponse
 # Create your views here.
 
+def index(request):
+    context = {}
+    
+    return render(request, 'index.html', context)
 
-def view_name(request):
+def check_face(request):
     if request.method == 'POST':
         filename = str(uuid.uuid4())
         file_path = os.path.join(settings.MEDIA_ROOT, filename)
