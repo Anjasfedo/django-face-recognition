@@ -9,8 +9,6 @@ class EmbeddingsDataset():
         self.embeddings = []
 
         profiles = Profile.objects.all()
-        user_ids = []
-        emb = []
         for p in profiles:
             if p.embedding is not None:
                 e = np.frombuffer(p.embedding, dtype=np.float32)

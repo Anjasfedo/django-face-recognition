@@ -23,20 +23,25 @@ def index(request):
     
     return render(request, 'index.html', context)
 
+
 def check_face(request):
     if request.method == 'POST':
         filename = str(uuid.uuid4())
         file_path = os.path.join(settings.MEDIA_ROOT, filename)
         image_b64 = request.POST.get('imageBase64')
         imgstr = image_b64.split(',')[1]
-        output = open(file_path, 'wb')
-        decoded = base64.b64decode(imgstr)
-        output.write(decoded)
+
+        # Write image data to file
+        with open(file_path, 'wb') as output:
+            decoded = base64.b64decode(imgstr)
+            output.write(decoded)
 
         user_ids = []
         names = []
         score, idx = face_app.get_similarity(
             file_path, utils.EmbeddingsDataset().embeddings)
+
+        # Remove file after use
         os.remove(file_path)
 
         if score is not None:

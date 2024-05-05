@@ -1,21 +1,24 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-
     <!-- Minified version -->
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css" />
+    <!-- CSRF token -->
+    <script>
+      window.csrf_token = '{{ csrf_token }}'
+    </script>
   </head>
   <body>
     <div class="">
       <video id="video" autoplay muted></video>
       <div class="stack-top" id="stack-top"></div>
       <div class="face_nome" id="face_nome">&nbsp;</div>
-
-      {% csrf_token %}
     </div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script>
       var interval
       const video = document.getElementById('video')
@@ -32,6 +35,7 @@
             }
           })
       }
+      
       startVideo()
       
       function capturar_video() {
@@ -45,17 +49,17 @@
           url: "{% url 'check_face'%}",
           data: {
             imageBase64: img_b64,
-            csrfmiddlewaretoken: csrf
+            csrfmiddlewaretoken: window.csrf_token
           }
         })
           .done(function (data) {
             console.log(data)
-            name = data.name
-            score = data.score
+            var name = data.name
+            var score = data.score
             clearInterval(interval)
             $('.stack-top').fadeOut(200).fadeIn(200).fadeOut(200).fadeIn(200)
-            timeout1 = setTimeout(function () {
-              window.location.replace("{%url 'index'%}")
+            var timeout1 = setTimeout(function () {
+              window.location.replace("{% url 'index'%}")
             }, 1500)
             $('#face_nome').html('Welcome ' + name + '.')
             $('#face_nome').show()
@@ -65,6 +69,7 @@
             $('#face_nome').show()
           })
       }
+      
       interval = setInterval(function () {
         capturar_video()
       }, 2000)
